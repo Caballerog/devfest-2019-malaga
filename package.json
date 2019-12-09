@@ -23,6 +23,7 @@
     "@nestjs/common": "^6.8.0",
     "@nestjs/core": "^6.8.0",
     "@nestjs/platform-express": "^6.8.0",
+    "cors": "^2.8.5",
     "reflect-metadata": "^0.1.13",
     "rimraf": "^3.0.0",
     "rxjs": "^6.5.3"
