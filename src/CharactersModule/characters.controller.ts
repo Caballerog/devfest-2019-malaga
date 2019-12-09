@@ -10,8 +10,9 @@ import {
 
 import { Character } from './models/character.interface';
 import { CharactersService } from './characters.service';
+
 @Controller('characters')
-export class AppController {
+export class CharactersController {
   constructor(private charactersService: CharactersService) {}
 
   @Get()
