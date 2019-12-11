@@ -6,10 +6,14 @@ import {
   Param,
   Post,
   Put,
+  ParseIntPipe,
+  ValidationPipe,
+  UsePipes,
 } from '@nestjs/common';
 
 import { Character } from './models/character.interface';
 import { CharactersService } from './characters.service';
+import { CreateCharacterDto } from './dtos/create-character.dto';
 
 @Controller('characters')
 export class CharactersController {
@@ -21,26 +25,27 @@ export class CharactersController {
   }
 
   @Post()
-  create(@Body('name') name: string) {
-    return this.charactersService.create(name);
+  @UsePipes(ValidationPipe)
+  create(@Body() createCharacterDto: CreateCharacterDto): Character {
+    return this.charactersService.create(createCharacterDto);
   }
 
   @Delete(':id')
-  deleteById(@Param('id') id: string): Character {
-    const characterID = parseInt(id, 10);
-    return this.charactersService.deleteById(characterID);
+  deleteById(@Param('id', new ParseIntPipe()) id: number): Character {
+    return this.charactersService.deleteById(id);
   }
 
   @Put()
-  updateById(@Body('id') id: string, @Body('name') name: string): Character {
-    const characterID = parseInt(id, 10);
-    return this.charactersService.updateById(characterID, name);
+  updateById(
+    @Body('id', new ParseIntPipe()) id: number,
+    @Body('name') name: string,
+  ): Character {
+    return this.charactersService.updateById(id, name);
   }
 
   @Get(':id')
-  findById(@Param('id') id: string): Character {
-    const characterID = parseInt(id, 10); // Pipe
-    return this.charactersService.findById(characterID);
+  findById(@Param('id', new ParseIntPipe()) id: number): Character {
+    return this.charactersService.findById(id);
   }
 
   @Get('name/:name')
