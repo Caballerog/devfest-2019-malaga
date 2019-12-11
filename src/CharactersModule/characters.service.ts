@@ -18,16 +18,16 @@ export class CharactersService {
     @Inject('CharacterRepositoryToken')
     private readonly charactersRepository: Repository<Character>,
   ) {
-    this.fake_characters.forEach(character =>
+    /*   this.fake_characters.forEach(character =>
       this.charactersRepository.insert(character).catch(() => {}),
-    );
+    ); */
   }
-  private readonly fake_characters: Character[] = [
+  /*   private readonly fake_characters: Character[] = [
     { id: 10000, name: 'Son Goku' },
     { id: 10001, name: 'Vegetta' },
     { id: 10002, name: 'Yamcha' },
     { id: 10003, name: 'Krilim' },
-  ];
+  ]; */
 
   findAll(): Promise<Character[]> {
     return this.charactersRepository.find();
