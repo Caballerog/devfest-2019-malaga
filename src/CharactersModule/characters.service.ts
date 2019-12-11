@@ -3,23 +3,37 @@ import {
   HttpStatus,
   Injectable,
   NotFoundException,
+  Inject,
 } from '@nestjs/common';
 
 import { Character } from './models/character.interface';
 import { CreateCharacterDto } from './dtos/create-character.dto';
 import { NotCharacterException } from './exceptions/not-character-exception';
 import { RepeatCharacterException } from './exceptions/repeat-character-exception';
+import { Repository } from 'typeorm';
 
 @Injectable()
 export class CharactersService {
-  private FAKE_ID = 10000;
-  private characters: Character[] = [];
-
-  findAll(): Character[] {
-    return this.characters;
+  constructor(
+    @Inject('CharacterRepositoryToken')
+    private readonly charactersRepository: Repository<Character>,
+  ) {
+    this.fake_characters.forEach(character =>
+      this.charactersRepository.insert(character).catch(() => {}),
+    );
   }
-  findById(characterID: number): Character {
-    const character = this.characters.find(({ id }) => id === characterID);
+  private readonly fake_characters: Character[] = [
+    { id: 10000, name: 'Son Goku' },
+    { id: 10001, name: 'Vegetta' },
+    { id: 10002, name: 'Yamcha' },
+    { id: 10003, name: 'Krilim' },
+  ];
+
+  findAll(): Promise<Character[]> {
+    return this.charactersRepository.find();
+  }
+  async findById(characterID: number): Promise<Character> {
+    const character = await this.charactersRepository.findOne(characterID);
     if (!character) {
       throw new HttpException(
         'Characters Service: Character not found',
@@ -28,48 +42,44 @@ export class CharactersService {
     }
     return character;
   }
-  findByName(name: string): Character[] {
-    const heroes = this.characters.filter(character =>
-      character.name.includes(name),
-    );
-    if (heroes.length === 0) {
+  async findByName(name: string): Promise<Character[]> {
+    const [characters, charactersCount] = await this.charactersRepository
+      .createQueryBuilder('characters')
+      .select()
+      .where('characters.name like :name', { name: `%${name}%` })
+      .getManyAndCount();
+    if (charactersCount === 0) {
       throw new NotFoundException('Characters Service: Character not found');
     }
-    return heroes;
+    return characters;
   }
-  updateById(characterID: number, name: string): Character {
-    const character = this.characters.find(
-      character => character.id === characterID,
-    );
-    if (character) {
-      character.name = name;
-    }
+  async updateById(characterID: number, name: string): Promise<Character> {
+    const character = {
+      name,
+      id: characterID,
+    };
+    await this.charactersRepository.update(characterID, character);
     return character;
   }
-  deleteById(characterID: number): Character {
-    const characterIndex = this.characters.findIndex(
-      character => character.id === characterID,
-    );
-    if (characterIndex === -1) {
+  async deleteById(characterID: number): Promise<Character> {
+    const character = await this.findById(characterID);
+    if (!character) {
       throw new NotCharacterException(characterID);
     }
-    const character = this.characters[characterIndex];
-    this.characters.splice(characterIndex, 1);
+    await this.charactersRepository.delete(characterID);
     return character;
   }
-  create({ name }: CreateCharacterDto): Character {
-    const characterFound = this.characters.find(
-      character => character.name === name,
-    );
-    if (characterFound) {
-      throw new RepeatCharacterException(characterFound);
+  async create({ name }: CreateCharacterDto): Promise<Character> {
+    try {
+      await this.charactersRepository.insert({ name });
+    } catch {
+      throw new RepeatCharacterException({ name } as Character);
     }
-    const character: Character = {
+    return this.findOneByName(name);
+  }
+  async findOneByName(name): Promise<Character> {
+    return this.charactersRepository.findOne({
       name,
-      id: this.FAKE_ID,
-    };
-    this.characters = [...this.characters, character];
-    this.FAKE_ID = this.FAKE_ID + 1;
-    return character;
+    });
   }
 }

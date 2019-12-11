@@ -21,7 +21,7 @@ export class AuthGuard implements CanActivate {
       Fake USER
     */
     user = {
-      roles: ['user'],
+      roles: ['admin'],
     };
     /* */
     const hasRole = () => user.roles.some(role => roles.includes(role));
