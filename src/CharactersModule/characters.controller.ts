@@ -9,13 +9,19 @@ import {
   ParseIntPipe,
   ValidationPipe,
   UsePipes,
+  UseGuards,
+  SetMetadata,
 } from '@nestjs/common';
 
 import { Character } from './models/character.interface';
 import { CharactersService } from './characters.service';
 import { CreateCharacterDto } from './dtos/create-character.dto';
 
+import { AuthGuard } from '../shared/guards/auth.guard';
+import { Roles } from '../shared/decorators/roles.decorator';
+
 @Controller('characters')
+@UseGuards(AuthGuard)
 export class CharactersController {
   constructor(private charactersService: CharactersService) {}
 
@@ -25,17 +31,20 @@ export class CharactersController {
   }
 
   @Post()
+  @Roles('admin')
   @UsePipes(ValidationPipe)
   create(@Body() createCharacterDto: CreateCharacterDto): Character {
     return this.charactersService.create(createCharacterDto);
   }
 
   @Delete(':id')
+  @Roles('admin')
   deleteById(@Param('id', new ParseIntPipe()) id: number): Character {
     return this.charactersService.deleteById(id);
   }
 
   @Put()
+  @Roles('admin')
   updateById(
     @Body('id', new ParseIntPipe()) id: number,
     @Body('name') name: string,
