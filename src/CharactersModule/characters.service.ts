@@ -6,6 +6,7 @@ import {
 } from '@nestjs/common';
 
 import { Character } from './models/character.interface';
+import { CreateCharacterDto } from './dtos/create-character.dto';
 import { NotCharacterException } from './exceptions/not-character-exception';
 import { RepeatCharacterException } from './exceptions/repeat-character-exception';
 
@@ -56,7 +57,7 @@ export class CharactersService {
     this.characters.splice(characterIndex, 1);
     return character;
   }
-  create(name: string): Character {
+  create({ name }: CreateCharacterDto): Character {
     const characterFound = this.characters.find(
       character => character.name === name,
     );
