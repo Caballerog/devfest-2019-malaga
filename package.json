@@ -23,9 +23,14 @@
     "@nestjs/common": "^6.8.0",
     "@nestjs/core": "^6.8.0",
     "@nestjs/platform-express": "^6.8.0",
+    "class-transformer": "^0.2.3",
+    "class-validator": "^0.11.0",
+    "cors": "^2.8.5",
+    "pg": "^7.14.0",
     "reflect-metadata": "^0.1.13",
     "rimraf": "^3.0.0",
-    "rxjs": "^6.5.3"
+    "rxjs": "^6.5.3",
+    "typeorm": "^0.2.21"
   },
   "devDependencies": {
     "@nestjs/cli": "^6.9.1",
